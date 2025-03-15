@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vue Basics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="app.js" defer></script>
+</head>
+
+<body>
+  <header>
+    <h1>Monster Slayer 👹⚔️</h1>
+  </header>
+  <div id="game">
+    <!-- Section to display the monster's health -->
+    <section id="monster" class="container">
+      <h2>Monster Health</h2>
+      <div class="healthbar">
+        <!-- Dynamically sets the monster's health bar width using the 'healthBar' computed property -->
+        <div class="healthbar__value" :style="healthBar('monster')"></div>
+      </div>
+    </section>
+
+    <!-- Section to display the player's health -->
+    <section id="player" class="container">
+      <h2>Your Health</h2>
+      <div class="healthbar">
+        <!-- Dynamically sets the player's health bar width using the 'healthBar' computed property -->
+        <div class="healthbar__value" :style="healthBar('player')"></div>
+      </div>
+    </section>
+
+    <!-- Controls section: Only displayed if there is no winner -->
+    <section v-if="!winner" id="controls">
+      <!-- Button to trigger the player's regular attack -->
+      <button @click="attackMonster()">ATTACK</button>
+      <!-- Button to trigger the player's special attack, disabled if it isn't ready (determined by 'mayUseSpecialAttack') -->
+      <button :disabled="mayUseSpecialAttack" @click="specialAttackMonster()">
+        SPECIAL ATTACK
+      </button>
+      <!-- Button to heal the player, disabled if the player's health is full (determined by 'fullHealthNoHeal') -->
+      <button :disabled="fullHealthNoHeal" @click="healPlayer">HEAL</button>
+      <!-- Button to surrender, setting 'isSurrendered' to true -->
+      <button @click="isSurrendered = true">SURRENDER</button>
+    </section>
+
+    <!-- Game Over section: Only displayed if there is a winner -->
+    <section id="game-over" class="container" v-else>
+      <h1>
+        <!-- Displays different messages depending on who the winner is -->
+        You
+        <span v-if="winner === 'player'">won!</span>
+        <span v-else-if="winner === 'monster'">lost...</span>
+        <span v-else>have tied!</span>
+      </h1>
+      <!-- Button to restart the game, triggers 'restartGame' method -->
+      <button @click="restartGame">RESTART GAME</button>
+    </section>
+
+    <!-- Section to display the battle log -->
+    <section id="log" class="container">
+      <h2>Battle Log</h2>
+      <ul>
+        <!-- Loops through 'logMessages' and displays each log entry, only if there are messages -->
+        <li v-if="logMessages.length > 0" v-for="logMessage in logMessages">
+          <!-- Dynamically applies a class based on whether the action was performed by the player or the monster -->
+          <span :class="{
+                'log--player': logMessage.actionBy === 'player',
+                'log--monster': logMessage.actionBy === 'monster'
+              }">
+            <!-- Displays either 'Player' or 'Monster' depending on who performed the action -->
+            {{ logMessage.actionBy === 'player' ? 'Player' : 'Monster' }}
+          </span>
+          <!-- Log message for regular attack -->
+          <span v-if="logMessage.actionType === 'attack'">
+            attacks and deals
+            <span class="log--damage">{{ logMessage.actionValue }}</span>
+          </span>
+          <!-- Log message for special attack -->
+          <span v-else-if="logMessage.actionType === 'special-attack'">
+            performs a special attack dealing
+            <span class="log--damage">{{ logMessage.actionValue }}</span>
+          </span>
+          <!-- Log message for healing -->
+          <span v-else>
+            heals himself for
+            <span class="log--heal">{{ logMessage.actionValue }}</span>
+          </span>
+        </li>
+      </ul>
+    </section>
+  </div>
+</body>
+
+</html>
